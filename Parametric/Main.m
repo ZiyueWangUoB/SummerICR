@@ -1,8 +1,8 @@
 %%Main
 
 %% User Data 
-file = uigetfile;
-load(file);
+%file = uigetfile;
+%load(file);
 
 radius = str2double(inputdlg('Enter radius of ROI'));
 
@@ -115,16 +115,52 @@ end
 
 % peak intensity first cuz that's easier
 
-PIMap(xLength,yLength) = PixelVector(1,1,1);
+%PIMap(xLength,yLength) = PixelVector(1,1,1);
+PIMap = zeros(xLength,yLength);
+WITMap = zeros(xLength,yLength);
 
 for x = 1:xLength
     for y = 1:yLength
-          findMax = max(TICMap(x,y));
-          index = find(TICMap(x,y) == findMax);
-          timeStamp = (index-1)/10;     
+          findMax = max(TICMap(x,y).intensity);
+          index = find(TICMap(x,y).intensity == findMax);
+          timeStamp = (index-1)/10;     %Matlab index starts at 1, so 0.0 second is actually 1st frame. 
+          
+          
+          %PIMap(x,y).xCoord = x;
+          %PIMap(x,y).yCoord = y;
+          %PIMap(x,y).intensity = timeStamp;         %Using intensity as timestamp, not a vector this time.
+          
+          %if ((timeStamp > 20) && (timeStamp < 60)) 
+          WITMap(x,y) = timeStamp;
+          PIMap(x,y) = findMax;
+          %end
     end
 end
 
+%% does the parametric plotting
 
+figure
+subplot(1,2,1)
+surf(PIMap)
+title('PI parametric')
+%xlabel('X')
+ylabel('Y')
+xlim([0 yLength])
+ylim([0 xLength])
+view(2)
+set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
+colormap hot
+colorbar
+hold on
 
-
+subplot(1,2,2)
+surf(WITMap)
+title('WIT parametric')
+%xlabel('X')
+ylabel('Y')
+xlim([0 yLength])
+ylim([0 xLength])
+view(2)
+set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
+colormap hot
+colorbar
