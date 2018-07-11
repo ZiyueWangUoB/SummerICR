@@ -105,11 +105,7 @@ end
 %% Calculates WIT and PI for each small pixel
 
 
-
-
-
-
-gradientIntensity = gradient(TICMap(5,5).intensity);        %Find's the gradient at each point of the curve
+%gradientIntensity = gradient(TICMap(5,5).intensity);        %Find's the gradient at each point of the curve
 
 
 %threshold = 20;             %This should be done by inspection analysis. Assumed to be 20 for my results so far.
@@ -117,7 +113,17 @@ gradientIntensity = gradient(TICMap(5,5).intensity);        %Find's the gradient
 
 
 
+% peak intensity first cuz that's easier
 
+PIMap(xLength,yLength) = PixelVector(1,1,1);
+
+for x = 1:xLength
+    for y = 1:yLength
+          findMax = max(TICMap(x,y));
+          index = find(TICMap(x,y) == findMax);
+          timeStamp = (index-1)/10;     
+    end
+end
 
 
 
