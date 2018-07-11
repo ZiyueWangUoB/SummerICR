@@ -138,11 +138,10 @@ for x = 1:xLength
 end
 
 %% does the parametric plotting
-
 figure
 subplot(1,2,1)
 surf(PIMap)
-title('PI parametric')
+title(['PI parametric radius ' num2str(radius)])
 %xlabel('X')
 ylabel('Y')
 xlim([0 yLength])
@@ -155,7 +154,7 @@ hold on
 
 subplot(1,2,2)
 surf(WITMap)
-title('WIT parametric')
+title(['WIT parametric radius ' num2str(radius)])
 %xlabel('X')
 ylabel('Y')
 xlim([0 yLength])
