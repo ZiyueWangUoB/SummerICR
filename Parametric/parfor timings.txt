@@ -19,3 +19,6 @@ r = 5 with parfor
 3.28
 111
 3.5
+
+r = 7 no parfor
+189.8
