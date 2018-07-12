@@ -125,3 +125,15 @@ set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
 colormap hot
 colorbar
 
+%%
+t = 1:maxFrames;
+r = reshape(TICMap(125+radius,50+radius,:),[1,maxFrames]);
+gk = gradient(r);
+
+figure
+plot(1:maxFrames,r)
+
+figure
+plot(1:maxFrames,gk)
+
+

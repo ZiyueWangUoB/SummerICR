@@ -21,14 +21,9 @@ tic
 for y = 1:yLength
     for x = 1:xLength
         
-        %PixelMap(x+radius,y+radius,1:ImgLastFrame_PI) = ImgData{2,1}(x,y,1,maxFrames-ImgLastFrame_PI:maxFrames);
-        %PixelMap(x+radius,y+radius,ImgLastFrame_PI+1:maxFrames) = ImgData{2,1}(x,y,1,1:maxFrames-ImgLastFrame_PI);       
-
-        
-        %Plane wave
-        PixelMap(x+radius,y+radius,1:ImgLastFrame_BM) = ImgData{1,1}(x,y,1,maxFrames-ImgLastFrame_BM+1:maxFrames);
-        PixelMap(x+radius,y+radius,ImgLastFrame_BM+1:maxFrames) = ImgData{1,1}(x,y,1,1:maxFrames-ImgLastFrame_BM);  
-        
+        PixelMap(x+radius,y+radius,1:ImgLastFrame_PI) = ImgData{2,1}(x,y,1,maxFrames-ImgLastFrame_PI+1:maxFrames);
+        PixelMap(x+radius,y+radius,ImgLastFrame_PI+1:maxFrames) = ImgData{2,1}(x,y,1,1:maxFrames-ImgLastFrame_PI);      
+       
     end
 end
 toc
@@ -38,7 +33,7 @@ toc
 TICMap = zeros(xLength+2*radius,yLength+2*radius,maxFrames);
 
 tic
-parfor y = 1+radius:yLength+radius
+for y = 1+radius:yLength+radius
     for x = 1+radius:xLength+radius
         %IntensitySum = PixelMap(x,y,:);
         %totalArea = (2*radius+1)^2;          %1 per pixel
@@ -73,6 +68,8 @@ toc
 %PIMap(xLength,yLength) = PixelVector(1,1,1);
 PIMap = zeros(xLength,yLength);
 WITMap = zeros(xLength,yLength);
+ATMap = zeros(xLength,yLength);
+MTTMap = zeros(xLength,yLength);
 
 tic 
 for x = 1:xLength
@@ -82,17 +79,22 @@ for x = 1:xLength
           if findMax > 0
           %index = find(TICMap(x,y).intensity == findMax);
           index = find(TICMap(x+radius,y+radius,:) == findMax);
-          timeStamp = (index-1)/10;     %Matlab index starts at 1, so 0.0 second is actually 1st frame. 
+          timeStamp = (index-1)/10;     %Matlab index starts at 1, so 0.0 second is actually 1st frame.
           
           
-          %PIMap(x,y).xCoord = x;
-          %PIMap(x,y).yCoord = y;
-          %PIMap(x,y).intensity = timeStamp;         %Using intensity as timestamp, not a vector this time.
+          r = reshape(TICMap(100+radius,100+radius,:),[1,maxFrames]);
+          gk = diff(r,2);
           
-          %if ((timeStamp > 20) && (timeStamp < 60)) 
+          maxNoise = max(gk(1:80));
+          ATIndex = find(gk > maxNoise,1);          % Index - 1 would be the time but im lazy sorry
+          
+          MTTEndIntensity = 0.65*findMax;
+          MTTEndIndex = find(r > MTTEndIntensity,1,'last');
+          
+          
+          
           WITMap(x,y) = timeStamp;
           PIMap(x,y) = findMax;
-          %end
           end
     end
 end
@@ -125,4 +127,11 @@ view(2)
 set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
 colormap hot
 colorbar
+
+%%
+
+
+
+
+
 
