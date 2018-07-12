@@ -21,9 +21,13 @@ tic
 for y = 1:yLength
     for x = 1:xLength
         
-        PixelMap(x+radius,y+radius,1:ImgLastFrame_PI) = ImgData{2,1}(x,y,1,maxFrames-ImgLastFrame_PI+1:maxFrames);
-        PixelMap(x+radius,y+radius,ImgLastFrame_PI+1:maxFrames) = ImgData{2,1}(x,y,1,1:maxFrames-ImgLastFrame_PI);      
-       
+        %PixelMap(x+radius,y+radius,1:ImgLastFrame_PI) = ImgData{2,1}(x,y,1,ImgLastFrame_PI+1:maxFrames);
+        %PixelMap(x+radius,y+radius,ImgLastFrame_PI+1:maxFrames) = ImgData{2,1}(x,y,1,1:ImgLastFrame_PI); 
+        
+        PixelMap(x+radius,y+radius,1:maxFrames-ImgLastFrame_PI) = ImgData{2,1}(x,y,1,ImgLastFrame_PI+1:maxFrames);
+        PixelMap(x+radius,y+radius,maxFrames-ImgLastFrame_PI+1:maxFrames) = ImgData{2,1}(x,y,1,1:ImgLastFrame_PI);
+        
+        
     end
 end
 toc
@@ -158,8 +162,9 @@ xlim([0 yLength])
 ylim([0 xLength])
 view(2)
 set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
-colormap hot
+colormap colorcube	
 colorbar
+%caxis([0 80])
 
 subplot(1,2,2)
 surf(MTTMap)
@@ -174,16 +179,16 @@ colormap hot
 colorbar
 
 %%
-          r = reshape(TICMap(x+radius,y+radius,:),[1,maxFrames]);
-          gk = diff(r,2);
-          gk(end) = [];
-          maxGrad = max(gk(:));
-
-          figure
-          plot(1:maxFrames,r)
-          
-          figure
-          plot(1:maxFrames-3,gk)  
+%           r = reshape(TICMap(x+radius,y+radius,:),[1,maxFrames]);
+%           gk = diff(r,2);
+%           gk(end) = [];
+%           maxGrad = max(gk(:));
+% 
+%           figure
+%           plot(1:maxFrames,r)
+%           
+%           figure
+%           plot(1:maxFrames-3,gk)  
 
 
 
