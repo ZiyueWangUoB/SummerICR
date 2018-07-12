@@ -22,3 +22,11 @@ r = 5 with parfor
 
 r = 7 no parfor
 189.8
+
+r = 7 with parfor
+189.6
+
+r = 10 no parfor
+392
+
+r = 10 parfor
