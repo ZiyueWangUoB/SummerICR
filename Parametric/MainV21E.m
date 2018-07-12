@@ -9,37 +9,44 @@
 %toc
 
 radius = str2double(inputdlg('Enter radius of ROI'));
-
+maxFrames = length(ImgData{1,1}(1,1,1,:));
 
 %% Get inputs and split into individual pixels 
-yLength = length(ImgData{2,1}(1,:,1,1));        %Finds the length of the image. Basically the x and the y region
-xLength = length(ImgData{2,1}(:,1,1,1));        %of the image. 
+yLength = length(ImgData{1,1}(1,:,1,1));        %Finds the length of the image. Basically the x and the y region
+xLength = length(ImgData{1,1}(:,1,1,1));        %of the image. 
 
-PixelMap = zeros(xLength+2*radius,yLength+2*radius,800);     % 800 for old data, 850 for new data
+PixelMap = zeros(xLength+2*radius,yLength+2*radius,maxFrames);     % 800 for old data, 850 for new data
 
 tic
 for y = 1:yLength
     for x = 1:xLength
         
-        PixelMap(x+radius,y+radius,1:ImgLastFrame_PI) = ImgData{2,1}(x,y,1,747:800);
-        PixelMap(x+radius,y+radius,ImgLastFrame_PI+1:800) = ImgData{2,1}(x,y,1,1:746);       
+        %PixelMap(x+radius,y+radius,1:ImgLastFrame_PI) = ImgData{2,1}(x,y,1,maxFrames-ImgLastFrame_PI:maxFrames);
+        %PixelMap(x+radius,y+radius,ImgLastFrame_PI+1:maxFrames) = ImgData{2,1}(x,y,1,1:maxFrames-ImgLastFrame_PI);       
 
+        
+        %Plane wave
+        PixelMap(x+radius,y+radius,1:ImgLastFrame_BM) = ImgData{1,1}(x,y,1,maxFrames-ImgLastFrame_BM+1:maxFrames);
+        PixelMap(x+radius,y+radius,ImgLastFrame_BM+1:maxFrames) = ImgData{1,1}(x,y,1,1:maxFrames-ImgLastFrame_BM);  
+        
     end
 end
 toc
 %% Calculating TIC for each pixel ROI
 
 %TICMap(xLength,yLength) = PixelVector(1,1,1);
-TICMap = zeros(xLength+2*radius,yLength+2*radius,800);
+TICMap = zeros(xLength+2*radius,yLength+2*radius,maxFrames);
 
 tic
-for y = 1+radius:yLength+radius
+parfor y = 1+radius:yLength+radius
     for x = 1+radius:xLength+radius
         %IntensitySum = PixelMap(x,y,:);
         %totalArea = (2*radius+1)^2;          %1 per pixel
         if radius > 0  
             k = mean(PixelMap(x-radius:x+radius,y-radius:y+radius,:));  
             TICMap(x,y,:) = mean(k(1,:,:),2);
+        else
+            TICMap(x,y,:) = PixelMap(x,y,:);
         end
         
     end

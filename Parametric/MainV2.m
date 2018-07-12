@@ -39,7 +39,7 @@ toc
 TICMap = zeros(xLength+2*radius,yLength+2*radius,850);
 
 tic
-for y = 1+radius:yLength+radius
+parfor y = 1+radius:yLength+radius
     for x = 1+radius:xLength+radius
         %IntensitySum = PixelMap(x,y,:);
         %totalArea = (2*radius+1)^2;          %1 per pixel
