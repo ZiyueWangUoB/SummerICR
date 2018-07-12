@@ -91,8 +91,8 @@ for x = 1:xLength
           MTTEndIntensity = 0.65*findMax;
           MTTEndIndex = find(r > MTTEndIntensity,1,'last');
           
-          
-          
+          ATMap(x,y) = (ATIndex-1)/10;
+          MTTMap = (MTTEndIndex-ATIndex)/10;
           WITMap(x,y) = timeStamp;
           PIMap(x,y) = findMax;
           end
@@ -103,7 +103,7 @@ toc
 
 %% does the parametric plotting
 figure
-subplot(1,2,1)
+subplot(2,2,1)
 surf(PIMap)
 title(['PI parametric radius ' num2str(radius)])
 %xlabel('X')
@@ -116,9 +116,33 @@ colormap hot
 colorbar
 hold on
 
-subplot(1,2,2)
+subplot(2,2,2)
 surf(WITMap)
 title(['WIT parametric radius ' num2str(radius)])
+%xlabel('X')
+ylabel('Y')
+xlim([0 yLength])
+ylim([0 xLength])
+view(2)
+set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
+colormap hot
+colorbar
+
+subplot(2,2,3)
+surf(ATMap)
+title(['AT parametric radius ' num2str(radius)])
+%xlabel('X')
+ylabel('Y')
+xlim([0 yLength])
+ylim([0 xLength])
+view(2)
+set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
+colormap hot
+colorbar
+
+subplot(2,2,4)
+surf(MTTMap)
+title(['MTT parametric radius ' num2str(radius)])
 %xlabel('X')
 ylabel('Y')
 xlim([0 yLength])
