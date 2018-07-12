@@ -122,6 +122,10 @@ parfor y = 1:yLength
 end
 toc
 
+%% Alternative for dumb checking - Create an array large enough for all the radius, an map of zeros.
+
+
+
 %% Calculates WIT and PI for each small pixel
 
 
