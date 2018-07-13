@@ -90,18 +90,17 @@ for x = 1:xLength
           gk = diff(r,2);
           gk(end) = [];
           maxGrad = max(gk(:));
-          
-                 
+         
 %           
           maxNoise = max(gk(1:150));
           ATIndexYeah = 0;
+          ATIndex = find(gk > maxNoise, 5);
           if maxNoise < maxGrad 
- 0;          % Index - 1 would be the time but im lazy sorry
          for j = 1:length(ATIndex)
           if ATIndex(j) < maxFrames-65
           AvgAfterIndex = mean(abs(gk(ATIndex(j):ATIndex(j)+50)));
                    
-          if ((ATIndex(j) > 10) && (AvgAfterIndex > gk(ATIndex(j))))
+          if ((ATIndex(j) > 10) && (AvgAfterIndex > gk(ATIndex(j))) && (ATIndex(j) <= timeStamp*10))
               ATIndexYeah = ATIndex(j);
               break;
           else
@@ -109,7 +108,8 @@ for x = 1:xLength
           end
           end
           end
-         end
+          end
+
           
           MTTEndIntensity = 0.65*findMax;
           MTTEndIndex = find(r >= MTTEndIntensity,1,'last');
@@ -118,6 +118,13 @@ for x = 1:xLength
           MTTMap(x,y) = (MTTEndIndex-ATIndexYeah)/10;
           WITMap(x,y) = timeStamp;
           PIMap(x,y) = findMax;
+          
+                   
+          if ((x== 31) && (y==130))
+              ATIndex
+              ATIndexYeah
+              ATMap(x,y)
+          end
           end
     end
 end
@@ -178,7 +185,7 @@ set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
 colormap hot
 colorbar
 
-%%
+ %%
 %           r = reshape(TICMap(x+radius,y+radius,:),[1,maxFrames]);
 %           gk = diff(r,2);
 %           gk(end) = [];
