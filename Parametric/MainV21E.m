@@ -54,7 +54,7 @@ toc
 
 %% Alternative for dumb checking - Create an array large enough for all the radius, an map of zeros.
 
-
+j
 
 %% Calculates WIT and PI for each small pixel
 
@@ -98,9 +98,10 @@ for x = 1:xLength
           if maxNoise < maxGrad 
          for j = 1:length(ATIndex)
           if ATIndex(j) < maxFrames-65
-          AvgAfterIndex = mean(abs(gk(ATIndex(j):ATIndex(j)+50)));
+          AvgGradAfterIndex = mean(abs(gk(ATIndex(j):ATIndex(j)+30)));
+          AvgRAfterIndex = mean(r(ATIndex(j):ATIndex(j)+30));
                    
-          if ((ATIndex(j) > 10) && (AvgAfterIndex > gk(ATIndex(j))) && (ATIndex(j) <= timeStamp*10))
+          if ((ATIndex(j) > 50) && (AvgRAfterIndex > r(ATIndex(j))) && (ATIndex(j) <= timeStamp*10))
               ATIndexYeah = ATIndex(j);
               break;
           else
@@ -120,11 +121,11 @@ for x = 1:xLength
           PIMap(x,y) = findMax;
           
                    
-          if ((x== 31) && (y==130))
-              ATIndex
-              ATIndexYeah
-              ATMap(x,y)
-          end
+%           if ((x== 249) && (y==110))
+%               ATIndex
+%               ATIndexYeah
+%               ATMap(x,y)§x
+%           end
           end
     end
 end
@@ -192,7 +193,8 @@ colorbar
 %           maxGrad = max(gk(:));
 % 
 %           figure
-%           plot(1:maxFrames,r)
+%           hold on
+%           plot(1:maxFrames,r,'m')
 %           
 %           figure
 %           plot(1:maxFrames-3,gk)  
