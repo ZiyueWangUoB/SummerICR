@@ -3,13 +3,16 @@
 %%computational time. 
 
 %% User Data 
-%tic
-%file = uigetfile;
-%load(file);
-%toc
+
+tic
+file = uigetfile;
+load(file);
+toc
+
+
 
 radius = str2double(inputdlg('Enter radius of ROI'));
-maxFrames = length(ImgData{1,1}(1,1,1,:));
+maxFrames = length(ImgData{1,1}(1,1,1,:));          
 
 %% Get inputs and split into individual pixels 
 yLength = length(ImgData{1,1}(1,:,1,1));        %Finds the length of the image. Basically the x and the y region
@@ -20,10 +23,8 @@ PixelMap = zeros(xLength+2*radius,yLength+2*radius,maxFrames);     % 800 for old
 tic
 for y = 1:yLength
     for x = 1:xLength
-        
-        %PixelMap(x+radius,y+radius,1:ImgLastFrame_PI) = ImgData{2,1}(x,y,1,ImgLastFrame_PI+1:maxFrames);
-        %PixelMap(x+radius,y+radius,ImgLastFrame_PI+1:maxFrames) = ImgData{2,1}(x,y,1,1:ImgLastFrame_PI); 
-        
+       
+        %Takes data and stores it in PixelMap
         PixelMap(x+radius,y+radius,1:maxFrames-ImgLastFrame_PI) = ImgData{2,1}(x,y,1,ImgLastFrame_PI+1:maxFrames);
         PixelMap(x+radius,y+radius,maxFrames-ImgLastFrame_PI+1:maxFrames) = ImgData{2,1}(x,y,1,1:ImgLastFrame_PI);
         
@@ -33,17 +34,23 @@ end
 toc
 %% Calculating TIC for each pixel ROI
 
-%TICMap(xLength,yLength) = PixelVector(1,1,1);
+%Idea behind this is to create a matrix large enough for the elements +
+%radius to be all on one map. This way we don't need complicated rules for
+%selecting which pixels to sum. The additional pixels on the outside of our
+%pixelmap are just filled with 0s. Thus it doesn't mess with the actual
+%data and decrease computational time at the same time. 
 TICMap = zeros(xLength+2*radius,yLength+2*radius,maxFrames);
 
+
+%Use parfor instead of for on high core machines for decreased computational time. Make sure to initiate
+%parallel pools beforehand. 
 tic
 parfor y = 1+radius:yLength+radius
     for x = 1+radius:xLength+radius
-        %IntensitySum = PixelMap(x,y,:);
-        %totalArea = (2*radius+1)^2;          %1 per pixel
+        
         if radius > 0  
-            k = mean(PixelMap(x-radius:x+radius,y-radius:y+radius,:));  
-            TICMap(x,y,:) = mean(k(1,:,:),2);
+            k = mean(PixelMap(x-radius:x+radius,y-radius:y+radius,:));      %Takes the average of all the x coordinates for the matrix of pixels with the ROI
+            TICMap(x,y,:) = mean(k(1,:,:),2);                               %Takes the average of the y values associated with the previous matrix
         else
             TICMap(x,y,:) = PixelMap(x,y,:);
         end
@@ -52,24 +59,9 @@ parfor y = 1+radius:yLength+radius
 end
 toc
 
-%% Alternative for dumb checking - Create an array large enough for all the radius, an map of zeros.
-
-j
-
 %% Calculates WIT and PI for each small pixel
 
 
-%gradientIntensity = gradient(TICMap(50,100).intensity);        %Find's the gradient at each point of the curve
-
-
-%threshold = 20;             %This should be done by inspection analysis. Assumed to be 20 for my results so far.
-%index = find(gradientIntensity>threshold,1);
-
-
-
-% peak intensity first cuz that's easier
-
-%PIMap(xLength,yLength) = PixelVector(1,1,1);
 PIMap = zeros(xLength,yLength);
 WITMap = zeros(xLength,yLength);
 ATMap = zeros(xLength,yLength);
@@ -78,44 +70,46 @@ MTTMap = zeros(xLength,yLength);
 tic 
 for x = 1:xLength
     for y = 1:yLength
-          %findMax = max(TICMap(x,y).intensity);
-          findMax = max(TICMap(x+radius,y+radius,:));
+        
+          findMax = max(TICMap(x+radius,y+radius,:));       %Find max intensity
           if findMax > 0
-          %index = find(TICMap(x,y).intensity == findMax);
-          index = find(TICMap(x+radius,y+radius,:) == findMax);
+          index = find(TICMap(x+radius,y+radius,:) == findMax);     
           timeStamp = (index-1)/10;     %Matlab index starts at 1, so 0.0 second is actually 1st frame.
           
           
-          r = reshape(TICMap(x+radius,y+radius,:),[1,maxFrames]);
-          gk = diff(r,2);
-          gk(end) = [];
-          maxGrad = max(gk(:));
+          r = reshape(TICMap(x+radius,y+radius,:),[1,maxFrames]);       %Reshapes our TIC map into a TIC curve for each pixel
+          gk = diff(r,2);                                               %Second derivative of the position at each pixel
+          gk(end) = [];                                                 %Second derivative goes to massive numbers at the end, so I just delete the last number
+          maxGrad = max(gk(:));         
          
 %           
-          maxNoise = max(gk(1:150));
-          ATIndexYeah = 0;
-          ATIndex = find(gk > maxNoise, 5);
-          if maxNoise < maxGrad 
+          maxNoise = max(gk(1:150));                                    %Find's the maximum intensity within the noise of the second deriv, in the first 15 seconds. 
+                                                                        %U&sed 15 as arbiatary numberr as most of the AT seemed to be around 20.
+          ATIndexYeah = 0;                                              %Arbitary constant used later
+          ATIndex = find(gk > maxNoise, 5);                             %Find the first 5 peaks greater than the noise found earlier
+          if maxNoise < maxGrad                                         
          for j = 1:length(ATIndex)
-          if ATIndex(j) < maxFrames-65
-          AvgGradAfterIndex = mean(abs(gk(ATIndex(j):ATIndex(j)+30)));
-          AvgRAfterIndex = mean(r(ATIndex(j):ATIndex(j)+30));
+          if ATIndex(j) < maxFrames-65                                  %Makes sure the check doens't overflow the array
+          AvgRAfterIndex = mean(r(ATIndex(j):ATIndex(j)+30));          %Find's the average intensity after the supposed "intensity start"
                    
+                %Following condition checks the: Timestamp of increaseis at least
+                %after 5 seconds, the average intensity after the initial
+                %increase is greater than that of the increase, and the
+                %timestamp of increase is lower than the timestamp of the
+                %peak intensity.
           if ((ATIndex(j) > 50) && (AvgRAfterIndex > r(ATIndex(j))) && (ATIndex(j) <= timeStamp*10))
               ATIndexYeah = ATIndex(j);
-              break;
-          else
-              ATIndexYeah = 0;
+              break;        %If we've found our supposed arrival time, store it and break out of the for loop. 
           end
           end
           end
           end
 
           
-          MTTEndIntensity = 0.65*findMax;
-          MTTEndIndex = find(r >= MTTEndIntensity,1,'last');
+          MTTEndIntensity = 0.65*findMax;       %65% of Peak intensity
+          MTTEndIndex = find(r >= MTTEndIntensity,1,'last');            %finds the MTT intensity drop from the end of the array.
           
-          ATMap(x,y) = (ATIndexYeah-1)/10;
+          ATMap(x,y) = (ATIndexYeah-1)/10;          %Stores everything$.
           MTTMap(x,y) = (MTTEndIndex-ATIndexYeah)/10;
           WITMap(x,y) = timeStamp;
           PIMap(x,y) = findMax;
@@ -186,7 +180,7 @@ set(gca,'XAxisLocation','top','YAxisLocation','left','ydir','reverse');
 colormap hot
 colorbar
 
- %%
+ %% Used for debugging
 %           r = reshape(TICMap(x+radius,y+radius,:),[1,maxFrames]);
 %           gk = diff(r,2);
 %           gk(end) = [];
