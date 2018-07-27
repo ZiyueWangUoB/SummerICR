@@ -1,6 +1,5 @@
 %%MainV21E - using an larger array (matrix) to see if it reduces. Works
 %%for Elahe's old data
-%%computational time. 
 
 %% User Data 
 
@@ -60,6 +59,10 @@ end
 toc
 
 %% Calculates WIT and PI for each small pixel
+
+%The fundamental idea is to create a matrix, where the x and y index of the
+%matrix is the position of the pixel in 2D space. The value stored in that
+%matrix is the parameter of interest. 
 
 
 PIMap = zeros(xLength,yLength);
