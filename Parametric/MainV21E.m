@@ -1,5 +1,11 @@
+% Ziyue Wang 2018 Summer ICR
+
 %%MainV21E - using an larger array (matrix) to see if it reduces. Works
 %%for Elahe's old data
+
+% As of late July 2018, this is the main code used for parametric plotting.
+% No differnetiation of time need to be made (recorded time, 80 or 85s).
+% It's adaptive.
 
 %% User Data 
 

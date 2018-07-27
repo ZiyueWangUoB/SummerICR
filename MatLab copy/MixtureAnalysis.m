@@ -1,7 +1,13 @@
+%Ziyue Wang 2018 Summer ICR
+
 %%Double fit script - mixture models.
 %A good chunk of this is copy pasted from 'NormalizeAndAnalysis.m' - refer
 %back to there for comments if need be. Most of the procedures are straight
 %forward anyway.
+
+%Note: This code was given up and the curve fitting tool was used. Due to
+%very basic algorithims used for this curve fitting script, it was
+%abandoned since processing times were too high. 
 
 
 Intensity_Unadjusted = Intensity_PI;

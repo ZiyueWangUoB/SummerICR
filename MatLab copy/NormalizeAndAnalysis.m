@@ -1,3 +1,5 @@
+%Ziyue Wang 2018 Summer ICR
+
 %This script is made to normalize the data and adjust for the minimum time
 %and intensity parameters. 
 
