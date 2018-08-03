@@ -119,9 +119,14 @@ end
 
 
 %% Lognormal least squares
+
+% The logic between each fit is the same, so I shall only comment one of
+% them.
+
+
 if plotLogN == 1
-maxError = 9999999999;
-Error = 0;
+maxError = 9999999999;      %A  max error, so that iterations will have a start point
+Error = 0;                  %Initializing the rest of the variables
 chiSqTot = 0;
 muOptimal = 0;
 sigmaOptimal = 0;
@@ -130,23 +135,23 @@ maxChiSq = 999999999;
 
 for mu = 1:500
     for sigma = 1:200
-        Error = 0;
+        Error = 0;      %Resetting variables
         chiSqTot = 0;
         Lognormal = lognpdf(AdjustedTime,mu/100,sigma/100);
         for i = xStartFrame:xEndFrame
-            residualSq = (Lognormal(i)-IntensityNormalized(i))^2;
-            Error = Error + residualSq;
-            if Lognormal(i) > 1e-10
+            residualSq = (Lognormal(i)-IntensityNormalized(i))^2;       %Calculates residual of that loop
+            Error = Error + residualSq;                                 %Sums the residual
+            if Lognormal(i) > 1e-10                         %To prevent for very small numbers skewing chi squared
                 chiSq = residualSq/Lognormal(i);
             else
                 chiSq = 0;
             end
-            chiSqTot = chiSqTot + chiSq; 
-            if Error > maxError
+            chiSqTot = chiSqTot + chiSq;                %Calulating the chiSq for this loop
+            if Error > maxError                         %This is here to speed up computation
                 continue
             end
         end
-        if Error <= maxError
+        if Error <= maxError                               %if larger just replace all variables 
             maxError = Error;
             maxChiSq = chiSqTot;
             muOptimal = mu/100;
@@ -156,7 +161,7 @@ for mu = 1:500
     end
 end
 
-LogNormalVariables = [muOptimal sigmaOptimal maxError maxChiSq]
+LogNormalVariables = [muOptimal sigmaOptimal maxError maxChiSq]         %Outputs key variables into workspace
 
 logplot = lognpdf(AdjustedTime,muOptimal,sigmaOptimal);
 plot(AdjustedTime+MinTime,logplot, 'r')
@@ -222,14 +227,15 @@ for nu = 1:500
         residualSqArray = zeros(1,length(AdjustedTimeFitting));
         chiSqArray = zeros(1,length(AdjustedTimeFitting));
         for i = xStartFrame:xEndFrame
-            residualSqArray(i) = (LDRWV(i) - IntensityNormalized(i))^2;
+            residualSqArray(i) = (LDRWV(i) - IntensityNormalized(i))^2;     %This loop is slightly different as NaN will be calculated sometimes
+
             if LDRWV(i) > 1e-10
                 chiSqArray(i) = residualSqArray(i)/LDRWV(i);
             end
         end
-        Error = nansum(residualSqArray);
-        chiSq = nansum(chiSqArray);
-        if Error < maxError
+        Error = nansum(residualSqArray);                                    %because of the NaNs, I store everything into an array
+        chiSq = nansum(chiSqArray);                                         %and then sum it at the end. However, this is obviously
+        if Error < maxError                                                 %computational costly.
             maxError = Error;
             maxChiSq = chiSq;
             nuOptimal = nu/10;
@@ -250,6 +256,8 @@ legend('Data', 'Lognormal pdf', 'Gamma Variate pdf','LDRW model')
 xlabel('Time (s)')
 ylabel('Intensity (Normalized, AUC = 1)')
 
+
+%% Plotting legends e.t.c
 %{
 dim = [0.15 .6 .12 .25];
 str1 = ['Lognormal Variables: \mu = ', num2str(LogNormalVariables(1)) ' \sigma = ' num2str(LogNormalVariables(2)) ' \chi ^2 = ' num2str(LogNormalVariables(3))];
